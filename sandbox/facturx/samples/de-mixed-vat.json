@@ -1,0 +1,64 @@
+{
+  "invoice": {
+    "number": "RE-2026-1007",
+    "issue_date": "2026-11-01",
+    "currency": "EUR",
+    "note": "Fiktive Testrechnung. Fictional test invoice.",
+    "delivery_date": "2026-10-28"
+  },
+  "seller": {
+    "name": "Beispiel Buchhandlung GmbH",
+    "vat_id": "DE123456789",
+    "address": {
+      "line1": "Musterstraße 1",
+      "postcode": "10115",
+      "city": "Berlin",
+      "country": "DE"
+    }
+  },
+  "buyer": {
+    "name": "Kunde & Söhne KG",
+    "vat_id": "DE987654321",
+    "address": {
+      "line1": "Testweg 7",
+      "postcode": "80331",
+      "city": "München",
+      "country": "DE"
+    }
+  },
+  "payment": {
+    "means": "credit_transfer",
+    "iban": "DE89370400440532013000",
+    "terms": "Zahlbar innerhalb von 14 Tagen ohne Abzug."
+  },
+  "lines": [
+    {
+      "description": "Fachbuch \"E-Rechnung in der Praxis\"",
+      "quantity": "4",
+      "unit": "C62",
+      "unit_price": "39.90",
+      "vat_rate": "7"
+    },
+    {
+      "description": "Schulung (Tagessatz)",
+      "quantity": "1",
+      "unit": "DAY",
+      "unit_price": "890.00",
+      "vat_rate": "19"
+    },
+    {
+      "description": "Versandkosten",
+      "quantity": "1",
+      "unit": "C62",
+      "unit_price": "4.95",
+      "vat_rate": "19"
+    },
+    {
+      "description": "E-Book <Bonus> & Arbeitshilfe",
+      "quantity": "2",
+      "unit": "C62",
+      "unit_price": "9.99",
+      "vat_rate": "7"
+    }
+  ]
+}

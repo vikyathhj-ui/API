@@ -1,0 +1,23 @@
+# Start:   docker compose up -d --build
+# Status:  docker compose ps
+# Logs:    docker compose logs -f validator
+# Stop:    docker compose down
+services:
+  validator:
+    build: .
+    image: invoiceformat/validator-sandbox:0.1.0
+    container_name: einvoice-validator
+    ports:
+      # Only reachable from THIS computer (127.0.0.1), not from your network/internet.
+      # The validator has no login/API keys, so never expose it publicly as-is.
+      - "127.0.0.1:8080:8080"
+    restart: unless-stopped
+    # --- security hardening ---
+    read_only: true                 # container filesystem cannot be modified
+    tmpfs:
+      - /tmp                        # Java needs a writable temp dir (in memory, wiped on stop)
+    cap_drop: [ALL]                 # drop all Linux special privileges
+    security_opt:
+      - no-new-privileges:true      # process can never gain more privileges
+    mem_limit: 768m                 # cap memory so one bad file can't eat the machine
+    cpus: 1.0

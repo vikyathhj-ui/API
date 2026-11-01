@@ -1,0 +1,6 @@
+{
+  "invoice": {"number": "BAD-1", "issue_date": "2026-11-01", "due_date": "2026-12-01"},
+  "seller": {"name": "No VAT ID Ltd", "address": {"line1": "1 Street", "postcode": "1000", "city": "Brussels", "country": "BE"}},
+  "buyer": {"name": "Buyer BV", "address": {"line1": "2 Street", "postcode": "2000", "city": "Antwerp", "country": "BE"}},
+  "lines": [{"description": "Thing", "quantity": "1", "unit_price": "10", "vat_rate": "21"}]
+}
