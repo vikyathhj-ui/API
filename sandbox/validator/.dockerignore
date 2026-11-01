@@ -1,0 +1,6 @@
+# Only vendor/ is needed by the Dockerfile. Keep everything else out of the
+# build context (faster builds, no accidental secrets in images).
+*
+!vendor/validator.jar
+!vendor/repository
+!vendor/LICENSE-*
