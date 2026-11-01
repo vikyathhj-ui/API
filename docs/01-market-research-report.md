@@ -287,7 +287,7 @@ A REST API plus a free MCP server.
 ### 8.1 Cost per request
 | Cost item | Assumption | Cost per 1,000 docs |
 |---|---|---|
-| Compute | Original assumption: 0.2–1.0 s CPU per doc. **Measured 2026-11-01 for validation only** (see `sandbox/validator/README.md`): median 10 ms, ~87 docs/s on 1 CPU. PDF generation is not measured yet. A €5.99/mo 2-vCPU ARM server ([Hetzner, after the 2026 price rises](https://capitalandcompute.net/blog/hetzner-price-increase-2026/)) is far more than enough at launch | < $0.01 (validation, measured); generation TBD |
+| Compute | Original assumption: 0.2–1.0 s CPU per doc. **Measured 2026-11-01:** validation median 10 ms (~87 docs/s on 1 CPU, `sandbox/validator`); Factur-X generation median 181 ms for a 1-page invoice, 670 ms for 6 pages (`sandbox/facturx`). A €5.99/mo 2-vCPU ARM server ([Hetzner, after the 2026 price rises](https://capitalandcompute.net/blog/hetzner-price-increase-2026/)) is far more than enough at launch | < $0.01 (validation and generation, measured CPU time) |
 | AI inference | None in the core product. Optional plain-English error explanations can be pre-written templates (no LLM). If an LLM is used: Haiku 5.5 at ~2k input + 300 output tokens ≈ $0.00035/call | $0 (or ~$0.35) |
 | Database | Postgres on the same server (usage counters, keys) | ~$0 |
 | Storage | Documents processed in memory and not stored by default (also helps GDPR) | ~$0 |

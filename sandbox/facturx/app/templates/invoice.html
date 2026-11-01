@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Invoice {{ inv.number }}</title>
+<meta name="author" content="{{ inv.seller.name }}">
+<style>
+  @page { size: A4; margin: 18mm 16mm 20mm 16mm;
+          @bottom-center { content: "Page " counter(page) " of " counter(pages); font-family: "DejaVu Sans", sans-serif; font-size: 8pt; color: #666; } }
+  body { font-family: "DejaVu Sans", sans-serif; font-size: 9.5pt; color: #222; }
+  h1 { font-size: 18pt; margin: 0 0 4mm 0; letter-spacing: 1px; }
+  .parties { display: flex; justify-content: space-between; margin: 6mm 0; }
+  .party { width: 48%; }
+  .label { color: #666; font-size: 8pt; text-transform: uppercase; margin-bottom: 1mm; }
+  table { width: 100%; border-collapse: collapse; }
+  th { text-align: left; border-bottom: 1.5px solid #222; padding: 2mm 1mm; font-size: 8.5pt; }
+  td { border-bottom: 0.5px solid #ccc; padding: 2mm 1mm; vertical-align: top; }
+  .num { text-align: right; white-space: nowrap; }
+  .meta td { border: none; padding: 0.5mm 3mm 0.5mm 0; }
+  .totals { width: 45%; margin-left: auto; margin-top: 5mm; }
+  .totals td { border: none; padding: 1mm; }
+  .grand td { border-top: 1.5px solid #222; font-weight: bold; font-size: 11pt; }
+  .footer { margin-top: 10mm; font-size: 8.5pt; color: #444; }
+</style>
+</head>
+<body>
+  <h1>{% if inv.type_code == "381" %}CREDIT NOTE{% else %}INVOICE{% endif %}</h1>
+  <table class="meta">
+    <tr><td>Invoice number</td><td><strong>{{ inv.number }}</strong></td></tr>
+    <tr><td>Issue date</td><td>{{ inv.issue_date.isoformat() }}</td></tr>
+    {% if inv.due_date %}<tr><td>Due date</td><td>{{ inv.due_date.isoformat() }}</td></tr>{% endif %}
+    {% if inv.buyer_reference %}<tr><td>Your reference</td><td>{{ inv.buyer_reference }}</td></tr>{% endif %}
+  </table>
+
+  <div class="parties">
+    {% for title, p in [("From", inv.seller), ("Bill to", inv.buyer)] %}
+    <div class="party">
+      <div class="label">{{ title }}</div>
+      <strong>{{ p.name }}</strong><br>
+      {{ p.address.line1 }}<br>
+      {% if p.address.line2 %}{{ p.address.line2 }}<br>{% endif %}
+      {{ p.address.postcode }} {{ p.address.city }}<br>
+      {{ p.address.country | upper }}<br>
+      {% if p.vat_id %}VAT ID: {{ p.vat_id }}{% endif %}
+    </div>
+    {% endfor %}
+  </div>
+
+  <table>
+    <thead>
+      <tr><th>#</th><th>Description</th><th class="num">Qty</th><th>Unit</th>
+          <th class="num">Unit price</th><th class="num">VAT %</th><th class="num">Net ({{ inv.currency }})</th></tr>
+    </thead>
+    <tbody>
+    {% for l in inv.lines %}
+      <tr><td>{{ l.number }}</td><td>{{ l.description }}</td><td class="num">{{ l.quantity }}</td>
+          <td>{{ l.unit }}</td><td class="num">{{ fmt(l.unit_price) }}</td>
+          <td class="num">{{ pct(l.vat_rate) }}</td><td class="num">{{ fmt(l.net) }}</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+
+  <table class="totals">
+    <tr><td>Total net</td><td class="num">{{ fmt(inv.line_total) }}</td></tr>
+    {% for g in inv.vat_groups %}
+    <tr><td>VAT {{ pct(g.rate) }}% on {{ fmt(g.basis) }}</td><td class="num">{{ fmt(g.tax) }}</td></tr>
+    {% endfor %}
+    <tr class="grand"><td>Amount due ({{ inv.currency }})</td><td class="num">{{ fmt(inv.due_amount) }}</td></tr>
+  </table>
+
+  <div class="footer">
+    {% if inv.payment.terms %}<p>{{ inv.payment.terms }}</p>{% endif %}
+    {% if inv.payment.iban %}<p>Bank transfer to IBAN {{ inv.payment.iban }}{% if inv.payment.bic %} (BIC {{ inv.payment.bic }}){% endif %}{% if inv.payment.reference %}, reference {{ inv.payment.reference }}{% endif %}.</p>{% endif %}
+    {% if inv.note %}<p>{{ inv.note }}</p>{% endif %}
+    <p>This PDF contains a machine-readable Factur-X / ZUGFeRD (EN 16931) invoice.</p>
+  </div>
+</body>
+</html>
