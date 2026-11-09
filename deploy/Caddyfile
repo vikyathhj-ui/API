@@ -1,0 +1,17 @@
+# Caddy: the public front door. It gets and renews free HTTPS certificates
+# (Let's Encrypt) automatically for the domain in .env (DOMAIN=...).
+{$DOMAIN} {
+	encode gzip
+	request_body {
+		max_size 11MB
+	}
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		-Server
+	}
+	reverse_proxy api:8000
+	log {
+		output stdout
+		format json
+	}
+}

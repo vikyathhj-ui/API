@@ -1,3 +1,5 @@
+> **Historical spike report (2026-11-01).** This code now lives in `service/` (generator: `service/app/invoice/generator.py`). Commands below refer to the old `sandbox/facturx` layout; to run things today, see the main [README](../README.md).
+
 # Sandbox: Factur-X / ZUGFeRD PDF generation
 
 **What this is:** a feasibility test (a "spike") for the riskiest part of the product: **creating** legally valid hybrid e-invoices, not just checking them. It is *not* the product yet.

@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Terms of Service · {{ product }}{% endblock %}
+{% block content %}
+<div class="legal">
+<h1>Terms of Service</h1>
+<p class="draft">Draft template. Have it reviewed by a lawyer for your country and your customers' countries before charging customers.</p>
+
+<h2>1. The service</h2>
+<p>{{ product }} ("we") provides an API that generates and validates electronic invoice files (e.g. Factur-X / ZUGFeRD, EN 16931). You ("customer") call it with an API key.</p>
+
+<h2>2. Not tax or legal advice</h2>
+<p>The service checks and produces technical file formats. It does not give tax, accounting or legal advice. You are responsible for the content of your invoices (amounts, VAT treatment, legal mentions) and for meeting the e-invoicing obligations that apply to you. A file passing our validation does not guarantee that a tax authority or recipient will accept it.</p>
+
+<h2>3. Accounts and API keys</h2>
+<p>Keep your API keys secret. You are responsible for all usage made with your keys. Tell us immediately if a key may be compromised; we will revoke it and issue a new one.</p>
+
+<h2>4. Plans, quotas and payment</h2>
+<p>Each plan includes a monthly number of documents and a request rate. When the quota is reached, further requests are refused until the next calendar month (UTC) or until you upgrade. Paid plans are billed monthly in advance through our payment provider. Prices may change with 30 days' notice.</p>
+
+<h2>5. Acceptable use</h2>
+<p>Do not use the service for unlawful purposes, to create fraudulent invoices, to attack or overload the service, or to resell raw access without our written agreement.</p>
+
+<h2>6. Availability</h2>
+<p>We aim for high availability but do not guarantee uninterrupted service on standard plans. Planned maintenance will be announced where possible.</p>
+
+<h2>7. Liability</h2>
+<p>To the extent permitted by law, the service is provided "as is", and our total liability is limited to the fees you paid us in the 3 months before the claim. We are not liable for indirect losses, lost profits, or penalties resulting from invoice content.</p>
+
+<h2>8. Termination</h2>
+<p>You can stop using the service at any time. We may suspend accounts that breach these terms.</p>
+
+<h2>9. Changes and contact</h2>
+<p>We may update these terms; material changes will be announced in advance. Questions: {% if contact %}<a href="mailto:{{ contact }}">{{ contact }}</a>{% else %}see the contact details on our website{% endif %}.</p>
+</div>
+{% endblock %}

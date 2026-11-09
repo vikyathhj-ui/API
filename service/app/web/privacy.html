@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}Privacy Policy · {{ product }}{% endblock %}
+{% block content %}
+<div class="legal">
+<h1>Privacy Policy</h1>
+<p class="draft">Draft template. Have it reviewed before launch, especially for GDPR (EU customers) and India's DPDP Act.</p>
+
+<h2>What we store</h2>
+<ul>
+  <li><strong>Account data:</strong> your email address, optional name/company, plan, and the date you signed up.</li>
+  <li><strong>API keys:</strong> only a one-way hash (we cannot read your key back).</li>
+  <li><strong>Usage records:</strong> for each call, which endpoint, when, the HTTP status and how long it took. Used for quotas, billing, support and abuse prevention.</li>
+  <li><strong>Technical logs:</strong> request time, path, status and duration. No request bodies and no API keys.</li>
+</ul>
+
+<h2>What we do not store</h2>
+<p>The invoices you send to generate or validate are processed in memory and discarded after the response. We do not keep copies of invoice contents, and we do not use them for any other purpose.</p>
+
+<h2>Why we process your data</h2>
+<p>To provide the service you signed up for (contract), to bill and prevent abuse (legitimate interest), and to meet legal obligations (e.g. accounting records of payments).</p>
+
+<h2>Who else processes data</h2>
+<p>Our hosting provider (servers), and our payment provider when you buy a paid plan. Payment card details are handled by the payment provider, never by us.</p>
+
+<h2>How long</h2>
+<p>Account data while your account is active and up to 12 months after closure; usage records up to 24 months; payment records as long as tax law requires.</p>
+
+<h2>Your rights</h2>
+<p>You can ask to see, correct, export or delete your data, or object to processing. Contact {% if contact %}<a href="mailto:{{ contact }}">{{ contact }}</a>{% else %}us via the contact details on our website{% endif %}. EU residents may also complain to their data protection authority.</p>
+
+<h2>Security</h2>
+<p>Traffic is encrypted (HTTPS), keys are stored hashed, services run with minimal privileges, and internal components are not reachable from the internet.</p>
+</div>
+{% endblock %}

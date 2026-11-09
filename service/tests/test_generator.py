@@ -14,7 +14,7 @@ from pathlib import Path
 
 from lxml import etree
 
-from app.facturx_gen import (InvoiceInputError, _env, _fmt, _pct, build_cii_xml,
+from app.invoice.generator import (InvoiceInputError, _env, _fmt, _pct, build_cii_xml,
                              extract_xml, generate, parse_invoice)
 
 SAMPLES = Path(__file__).resolve().parent.parent / "samples"

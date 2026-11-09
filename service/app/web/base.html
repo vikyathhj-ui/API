@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}{{ product }}{% endblock %}</title>
+<meta name="description" content="API to create and validate EU e-invoices: Factur-X / ZUGFeRD PDF generation and EN 16931 validation with plain-English errors.">
+<style>
+  :root { --bg:#ffffff; --fg:#1b1f24; --muted:#59636e; --line:#e3e6ea; --card:#f6f8fa;
+          --accent:#1f6feb; --accent-fg:#ffffff; --ok:#1a7f37; --warn:#9a6700; --code:#0d1117; --code-fg:#e6edf3; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#0d1117; --fg:#e6edf3; --muted:#9198a1; --line:#30363d; --card:#161b22;
+            --accent:#4493f8; --accent-fg:#0d1117; --ok:#3fb950; --warn:#d29922; --code:#010409; --code-fg:#e6edf3; }
+  }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--fg); font: 16px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  .wrap { max-width: 1040px; margin: 0 auto; padding: 0 16px; }
+  header.top { border-bottom:1px solid var(--line); }
+  header.top .wrap { display:flex; align-items:center; justify-content:space-between; gap:16px; min-height:60px; flex-wrap:wrap; }
+  .brand { font-weight:700; color:var(--fg); text-decoration:none; }
+  nav a { color:var(--muted); text-decoration:none; margin-left:18px; }
+  nav a:hover { color:var(--fg); }
+  a { color: var(--accent); }
+  h1 { font-size: clamp(30px, 5vw, 46px); line-height:1.15; margin: 56px 0 14px; letter-spacing:-0.02em; }
+  h2 { font-size: 26px; margin: 56px 0 14px; letter-spacing:-0.01em; }
+  h3 { font-size: 18px; margin: 0 0 6px; }
+  .lead { font-size: 19px; color: var(--muted); max-width: 720px; }
+  .btn { display:inline-block; padding:10px 18px; border-radius:8px; border:1px solid var(--line); color:var(--fg);
+         text-decoration:none; font-weight:600; background:var(--card); cursor:pointer; font-size:15px; }
+  .btn.primary { background:var(--accent); color:var(--accent-fg); border-color:var(--accent); }
+  .row { display:flex; gap:12px; flex-wrap:wrap; margin:22px 0; }
+  .grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap:16px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:18px; }
+  .card p { margin:0; color:var(--muted); }
+  pre { background:var(--code); color:var(--code-fg); padding:16px; border-radius:10px; overflow-x:auto; font-size:13.5px; line-height:1.5; }
+  code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+  .price { font-size: 32px; font-weight: 700; margin: 6px 0; }
+  .price small { font-size: 15px; color: var(--muted); font-weight: 500; }
+  .plan ul { padding-left: 18px; margin: 10px 0 16px; color: var(--muted); }
+  .note { font-size: 14px; color: var(--muted); }
+  input[type=email], input[type=text] { width:100%; padding:10px 12px; border-radius:8px; border:1px solid var(--line);
+         background:var(--bg); color:var(--fg); font-size:15px; }
+  label { font-size:14px; color:var(--muted); display:block; margin:10px 0 4px; }
+  .result { margin-top:14px; display:none; }
+  .ok { color: var(--ok); } .warn { color: var(--warn); }
+  footer { border-top:1px solid var(--line); margin-top:64px; padding:24px 0 40px; color:var(--muted); font-size:14px; }
+  footer a { color: var(--muted); margin-right: 16px; }
+  .legal h2 { margin-top: 32px; font-size: 20px; }
+  .draft { border:1px solid var(--warn); color:var(--warn); padding:10px 14px; border-radius:8px; margin-top:24px; }
+</style>
+</head>
+<body>
+<header class="top"><div class="wrap">
+  <a class="brand" href="/">{{ product }}</a>
+  <nav><a href="/#how">How it works</a><a href="/#pricing">Pricing</a><a href="/docs">API docs</a><a href="/#signup">Get a key</a></nav>
+</div></header>
+<main class="wrap">
+{% block content %}{% endblock %}
+</main>
+<footer><div class="wrap">
+  <a href="/terms">Terms</a><a href="/privacy">Privacy</a><a href="/docs">API docs</a><a href="/v1/health">Status</a>
+  {% if contact %}<a href="mailto:{{ contact }}">{{ contact }}</a>{% endif %}
+  <p>© {{ year }} {{ product }}. Technical e-invoice format generation and validation. Not tax or legal advice.</p>
+</div></footer>
+</body>
+</html>

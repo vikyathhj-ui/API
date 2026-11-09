@@ -1,0 +1,90 @@
+# -----------------------------------------------------------------------------
+# InvoiceFormat API: the whole product on one machine.
+#
+#   cp .env.example .env              # then edit .env (set a strong database password)
+#   bash validator/scripts/fetch-dependencies.sh
+#   docker compose up -d --build
+#   open http://127.0.0.1:8000
+#
+# Only the API is reachable from outside the Docker network, and only from this computer
+# (127.0.0.1). For a public server, add deploy/docker-compose.prod.yml (HTTPS via Caddy).
+# -----------------------------------------------------------------------------
+name: invoiceformat
+
+services:
+  api:
+    build: ./service
+    image: invoiceformat/api:1.0.0
+    environment:
+      DATABASE_URL: postgresql://app:${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}@db:5432/invoiceformat
+      REDIS_URL: redis://redis:6379/0
+      VALIDATOR_URL: http://validator:8080
+      PRODUCT_NAME: ${PRODUCT_NAME:-InvoiceFormat API}
+      CONTACT_EMAIL: ${CONTACT_EMAIL:-}
+      PUBLIC_BASE_URL: ${PUBLIC_BASE_URL:-http://127.0.0.1:8000}
+      SIGNUP_ENABLED: ${SIGNUP_ENABLED:-true}
+      MAX_BODY_BYTES: ${MAX_BODY_BYTES:-10485760}
+    ports:
+      - "127.0.0.1:${API_PORT:-8000}:8000"
+    depends_on:
+      db: {condition: service_healthy}
+      redis: {condition: service_healthy}
+      validator: {condition: service_healthy}
+    restart: unless-stopped
+    read_only: true
+    tmpfs: [/tmp]
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    mem_limit: 1g
+    networks: [backend]
+
+  validator:            # official KoSIT validator, internal only (no authentication of its own)
+    build: ./validator
+    image: invoiceformat/validator:1.6.3-en16931-1.3.17
+    restart: unless-stopped
+    read_only: true
+    tmpfs: [/tmp]
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    mem_limit: 768m
+    networks: [backend]
+
+  db:
+    image: postgres:17-alpine@sha256:3540c0362c809df084ffac0ae69fe794515f9de92692f02178bcdce0ef0302ac
+    environment:
+      POSTGRES_DB: invoiceformat
+      POSTGRES_USER: app
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+    volumes:
+      - pgdata:/var/lib/postgresql/data      # customers and usage survive restarts/rebuilds
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U app -d invoiceformat"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+    mem_limit: 512m
+    networks: [backend]
+
+  redis:                # rate-limit counters only; nothing permanent, so no disk persistence
+    image: redis:7.4-alpine@sha256:c5d34a98396a4775e223c74e929162c35c5a2182901ba26b50ade939941ce14b
+    command: ["redis-server", "--save", "", "--appendonly", "no", "--maxmemory", "64mb",
+              "--maxmemory-policy", "allkeys-lru"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    user: redis           # start unprivileged directly (no root -> user switch needed)
+    restart: unless-stopped
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    mem_limit: 128m
+    networks: [backend]
+
+volumes:
+  pgdata:
+
+networks:
+  backend:

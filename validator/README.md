@@ -1,3 +1,5 @@
+> **Note (2026-11-09):** this validator is now part of the product stack. It is started by the root `docker-compose.yml` as an internal service. This folder can still be run on its own for experiments (commands below).
+
 # Sandbox: E-Invoice Validator in Docker
 
 **What this is:** a learning sandbox, *not* the product. It runs the official open-source **KoSIT Validator** (the reference e-invoice checker used by German authorities) inside Docker, with the **European EN 16931 rules**, and tests it automatically.
@@ -42,7 +44,7 @@
 You need: **Docker Desktop** (running), **Git**, and a terminal. On Windows use **Git Bash** or **WSL**.
 
 ```bash
-cd sandbox/validator
+cd validator
 ```
 
 1. Download the validator and the rules (about 15 MB; checks every file):

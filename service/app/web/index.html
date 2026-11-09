@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+{% block title %}{{ product }}: create and validate EU e-invoices{% endblock %}
+{% block content %}
+<h1>Valid EU e-invoices<br>from one API call.</h1>
+<p class="lead">Send simple JSON, get back a Factur-X / ZUGFeRD PDF that passes the official validators.
+Or send any e-invoice and get its errors explained in plain English. Built for small software teams
+who need e-invoicing without a €500/month platform.</p>
+<div class="row">
+  <a class="btn primary" href="#signup">Get a free API key</a>
+  <a class="btn" href="/docs">Read the API docs</a>
+</div>
+
+<h2>Why now</h2>
+<div class="grid">
+  <div class="card"><h3>Belgium</h3><p>Structured B2B e-invoicing mandatory since January 2026.</p></div>
+  <div class="card"><h3>France</h3><p>All businesses must receive e-invoices from September 2026; issuing phases in 2026–2027.</p></div>
+  <div class="card"><h3>Germany</h3><p>Receiving mandatory since 2025; issuing required from 2027 (larger firms) and 2028 (all).</p></div>
+</div>
+<p class="note">Dates summarised from public sources; always confirm with your country's tax authority.</p>
+
+<h2 id="how">How it works</h2>
+<div class="grid">
+  <div class="card"><h3>1. Send JSON</h3><p>Seller, buyer, lines and VAT rates. No totals: we calculate them, so arithmetic errors can't happen.</p></div>
+  <div class="card"><h3>2. Get a Factur-X PDF</h3><p>A normal PDF/A-3 invoice with the EN 16931 XML embedded. Readable by people and accounting software.</p></div>
+  <div class="card"><h3>3. Validate anything</h3><p>Upload XML (UBL or CII) or a Factur-X/ZUGFeRD PDF. Errors come with rule IDs and plain-English hints.</p></div>
+  <div class="card"><h3>Private by design</h3><p>Invoice contents are processed in memory and never stored. We only count your calls.</p></div>
+</div>
+
+<h2>Try it</h2>
+<pre><code>curl -X POST {{ base_url }}/v1/invoices \
+  -H "Authorization: Bearer $API_KEY" \
+  -H "Content-Type: application/json" \
+  --data @invoice.json \
+  -o invoice.pdf
+
+curl -X POST {{ base_url }}/v1/validate \
+  -H "Authorization: Bearer $API_KEY" \
+  -H "Content-Type: application/pdf" \
+  --data-binary @invoice.pdf</code></pre>
+<details><summary>Example <code>invoice.json</code></summary>
+<pre><code>{{ example }}</code></pre></details>
+
+<h2 id="pricing">Pricing</h2>
+<p class="note">One document = one successful generation or validation. Invalid input is never charged.</p>
+<div class="grid">
+{% for p in plans %}
+  <div class="card plan">
+    <h3>{{ p.name }}</h3>
+    <div class="price">${{ p.price_usd_month }}<small>/month</small></div>
+    <ul>
+      <li>{{ "{:,}".format(p.documents_per_month) }} documents / month</li>
+      <li>{{ p.requests_per_minute }} requests / minute</li>
+      <li>Generate + validate</li>
+    </ul>
+    {% if p.id == "free" %}
+      <a class="btn" href="#signup">Start free</a>
+    {% elif payment_links.get(p.id) %}
+      <a class="btn primary" href="{{ payment_links[p.id] }}" rel="noopener">Choose {{ p.name }}</a>
+    {% elif contact %}
+      <a class="btn" href="mailto:{{ contact }}?subject={{ p.name|urlencode }}%20plan">Contact us</a>
+    {% else %}
+      <span class="note">Coming soon</span>
+    {% endif %}
+  </div>
+{% endfor %}
+</div>
+<p class="note">Need more volume, an SLA or a self-hosted licence? {% if contact %}<a href="mailto:{{ contact }}">Talk to us</a>.{% else %}Get in touch.{% endif %}</p>
+
+<h2 id="signup">Get a free API key</h2>
+{% if signup_enabled %}
+<div class="card" style="max-width:520px">
+  <form id="signup-form">
+    <label for="email">Work email</label>
+    <input id="email" name="email" type="email" required autocomplete="email" placeholder="you@company.com">
+    <label for="name">Name or company (optional)</label>
+    <input id="name" name="name" type="text" maxlength="120" autocomplete="organization">
+    <div class="row"><button class="btn primary" type="submit">Create my key</button></div>
+    <p class="note">By creating a key you accept the <a href="/terms">Terms</a> and <a href="/privacy">Privacy policy</a>.</p>
+  </form>
+  <div class="result" id="signup-result"></div>
+</div>
+<script>
+document.getElementById("signup-form").addEventListener("submit", async (ev) => {
+  ev.preventDefault();
+  const out = document.getElementById("signup-result");
+  out.style.display = "block"; out.textContent = "Creating your key…";
+  try {
+    const res = await fetch("/v1/signup", {method: "POST", headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({email: ev.target.email.value, name: ev.target.name.value})});
+    const data = await res.json();
+    out.textContent = "";
+    if (res.ok) {
+      const p = document.createElement("p"); p.className = "ok";
+      p.textContent = "Your API key (shown only once, copy it now):";
+      const pre = document.createElement("pre"); pre.textContent = data.api_key;
+      out.append(p, pre);
+      ev.target.reset();
+    } else {
+      const p = document.createElement("p"); p.className = "warn";
+      p.textContent = (data.error && data.error.message) || "Something went wrong.";
+      out.append(p);
+    }
+  } catch (e) { out.textContent = "Network error. Please try again."; }
+});
+</script>
+{% else %}
+<p>Self-service sign-up is closed right now. {% if contact %}<a href="mailto:{{ contact }}">Ask for a key</a>.{% endif %}</p>
+{% endif %}
+
+<h2>What's supported today</h2>
+<div class="grid">
+  <div class="card"><h3>Generate</h3><p>Factur-X / ZUGFeRD, EN 16931 profile, PDF/A-3b. Invoices and credit notes, multiple standard VAT rates, bank transfer details, French 2026 legal notes, SIREN and electronic addresses.</p></div>
+  <div class="card"><h3>Validate</h3><p>{{ ruleset }}. UBL 2.1 and CII, as XML or embedded in PDF.</p></div>
+  <div class="card"><h3>Coming next</h3><p>XRechnung and Peppol UBL output, reverse charge and VAT exemptions, discounts and charges, German and French national rule sets.</p></div>
+</div>
+<p class="note">{{ limitations }}</p>
+{% endblock %}

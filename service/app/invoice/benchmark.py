@@ -12,9 +12,9 @@ import time
 import resource
 from pathlib import Path
 
-from .facturx_gen import build_cii_xml, make_facturx, parse_invoice, render_pdf
+from .generator import build_cii_xml, make_facturx, parse_invoice, render_pdf
 
-SAMPLES = Path(__file__).resolve().parent.parent / "samples"
+SAMPLES = Path(__file__).resolve().parents[2] / "samples"
 
 
 def long_invoice() -> dict:
