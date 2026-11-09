@@ -64,11 +64,12 @@ docs/                     guides (below) and the research behind the product
 | Going live | [docs/DEPLOY.md](docs/DEPLOY.md): server, domain, HTTPS, backups, monitoring |
 | Daily running | [docs/OPERATIONS.md](docs/OPERATIONS.md): customers, keys, plans, logs, restore, incidents |
 | Selling | [docs/SELLING.md](docs/SELLING.md): payments, launch checklist, first 10 customers |
+| RapidAPI marketplace | [docs/rapidapi/LISTING.md](docs/rapidapi/LISTING.md): listing text, pricing, OpenAPI file, setup steps |
 | Project status | [docs/PROJECT_DASHBOARD.md](docs/PROJECT_DASHBOARD.md) |
 | Background | [market research](docs/01-market-research-report.md) · [Factur-X spike](docs/02-facturx-spike-report.md) · [validation kit](docs/validation/validation-kit.md) |
 
 ## Verified on 2026-11-09 (cloud dev environment)
-- 36/36 automated tests: generator maths, input checks, injection attempts, auth, rate limits, quotas, size limits, sign-up, privacy (keys hashed, invoice contents never stored)
+- 40/40 automated tests (incl. RapidAPI marketplace integration): generator maths, input checks, injection attempts, auth, rate limits, quotas, size limits, sign-up, privacy (keys hashed, invoice contents never stored)
 - End to end over HTTP: generated PDFs pass **veraPDF (PDF/A-3b)** and **Mustang (Factur-X, incl. French 2026 rules)** with zero warnings, and validate cleanly through the API
 - Load test (4 CPU cores, 2 workers): generation ~11 invoices/s, validation ~54/s, 500/500 requests successful
 - Production setup tested locally: HTTPS via Caddy, HTTP→HTTPS redirect, HSTS, 12 MB upload rejected at the edge, API port not exposed, real client IPs passed through, forged IP headers ignored

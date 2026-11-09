@@ -224,3 +224,59 @@ def test_api_key_is_stored_hashed_and_invoice_content_is_not_stored(client):
                            for t in ("customers", "api_keys", "usage_events")], default=str)
     assert key not in dump
     assert "FA-2026-0042" not in dump and "Atelier Exemple" not in dump
+
+
+# ---------------------------------------------------------------- RapidAPI marketplace
+import dataclasses
+
+import app.auth as auth_module
+from app.config import settings as real_settings
+
+RAPID_SECRET = "test-proxy-secret-1234567890"
+
+
+@pytest.fixture
+def rapidapi_on(monkeypatch):
+    monkeypatch.setattr(auth_module, "settings",
+                        dataclasses.replace(real_settings, rapidapi_proxy_secret=RAPID_SECRET))
+
+
+def rapid_headers(user, secret=RAPID_SECRET, tier="PRO"):
+    return {"X-RapidAPI-Proxy-Secret": secret, "X-RapidAPI-User": user,
+            "X-RapidAPI-Subscription": tier, "X-RapidAPI-Host": "einvoice.p.rapidapi.com"}
+
+
+def test_rapidapi_call_creates_customer_and_counts_usage(client, rapidapi_on):
+    user = f"rapiduser{uuid.uuid4().hex[:8]}"
+    for _ in range(2):
+        r = client.post("/v1/invoices?format=xml", json=SAMPLE, headers=rapid_headers(user))
+        assert r.status_code == 200, r.text
+    with db.connection() as conn:
+        c = conn.execute("SELECT id, plan FROM customers WHERE email = %s", (f"rapidapi:{user}",)).fetchone()
+        rows = conn.execute("SELECT api_key_id, billable FROM usage_events WHERE customer_id = %s",
+                            (c["id"],)).fetchall()
+    assert c["plan"] == "rapidapi"
+    assert len(rows) == 2 and all(r["billable"] and r["api_key_id"] is None for r in rows)
+    r = client.post("/v1/validate", content=b"<x/>", headers=rapid_headers(user))
+    assert r.status_code == 200 and r.json()["valid"] is False
+
+
+def test_rapidapi_wrong_secret_and_missing_user(client, rapidapi_on):
+    r = client.post("/v1/invoices", json=SAMPLE, headers=rapid_headers("someone", secret="wrong"))
+    assert r.status_code == 403 and r.json()["error"]["code"] == "invalid_proxy_secret"
+    r = client.post("/v1/invoices", json=SAMPLE, headers=rapid_headers(""))
+    assert r.status_code == 400 and r.json()["error"]["code"] == "missing_rapidapi_user"
+
+
+def test_rapidapi_headers_ignored_when_not_configured(client, monkeypatch):
+    # Integration off (no secret configured): faking RapidAPI headers must not grant access.
+    monkeypatch.setattr(auth_module, "settings", dataclasses.replace(real_settings, rapidapi_proxy_secret=""))
+    r = client.post("/v1/invoices", json=SAMPLE, headers=rapid_headers("attacker", secret="anything"))
+    assert r.status_code == 401 and r.json()["error"]["code"] == "missing_api_key"
+
+
+def test_rapidapi_plan_hidden_and_reserved_emails(client):
+    assert "RapidAPI" not in client.get("/").text.split('id="pricing"')[1].split('id="signup"')[0]
+    with TestClient(app, client=_ip()) as c:
+        r = c.post("/v1/signup", json={"email": "rapidapi:bob@example.com"})
+        assert r.status_code == 400 and r.json()["error"]["code"] == "invalid_email"

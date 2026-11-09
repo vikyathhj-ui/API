@@ -23,6 +23,9 @@ Steps once you pick one:
 
 **Tax and legal (India):** ask a Chartered Accountant about invoicing export of services, GST registration and LUT (Letter of Undertaking), and how MoR payouts are treated. Do this before your first payout.
 
+## 1b. Selling through RapidAPI (marketplace)
+RapidAPI handles customer sign-up, keys, billing and quotas for its marketplace customers, and pays you via PayPal (minus its fee). The server already supports it: set `RAPIDAPI_PROXY_SECRET`. Step-by-step listing guide with copy-paste text and the OpenAPI file: [rapidapi/LISTING.md](rapidapi/LISTING.md). It still requires the API to be deployed at a public HTTPS address first.
+
 ## 2. Launch checklist
 **Before telling anyone**
 - [ ] Choose the final product name; check that the domain and name are free (search trademarks in the EU / your target countries)

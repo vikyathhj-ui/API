@@ -23,6 +23,7 @@ class Settings:
     contact_email: str
     public_base_url: str
     payment_links: dict
+    rapidapi_proxy_secret: str
 
 
 def load_settings() -> Settings:
@@ -39,6 +40,8 @@ def load_settings() -> Settings:
         # Optional checkout links from your payment provider, one per paid plan
         payment_links={p: os.environ.get(f"PAYMENT_LINK_{p.upper()}", "").strip()
                        for p in ("starter", "growth", "scale")},
+        # From RapidAPI's provider dashboard. Empty = RapidAPI integration switched off.
+        rapidapi_proxy_secret=os.environ.get("RAPIDAPI_PROXY_SECRET", "").strip(),
     )
 
 

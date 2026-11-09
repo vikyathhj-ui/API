@@ -7,13 +7,21 @@ the keys inside it could not be used. Customers send the key in a header:
 
     Authorization: Bearer ifk_live_...      (preferred)
     X-API-Key: ifk_live_...                 (also accepted)
+
+RapidAPI marketplace: RapidAPI authenticates its own customers and forwards their calls
+to us with three headers: X-RapidAPI-Proxy-Secret (proves the call came through RapidAPI),
+X-RapidAPI-User (the customer's RapidAPI username) and X-RapidAPI-Subscription (their tier).
+These headers are trusted ONLY when RAPIDAPI_PROXY_SECRET is configured and matches.
 """
 import hashlib
+import hmac
+import re
 import secrets
 from dataclasses import dataclass
 
 from fastapi import Request
 
+from .config import settings
 from .db import connection
 from .errors import APIError
 from .plans import Plan, get_plan
@@ -23,10 +31,12 @@ KEY_PREFIX = "ifk_live_"
 
 @dataclass(frozen=True)
 class Caller:
-    key_id: int
+    key_id: int | None      # None for RapidAPI customers (RapidAPI holds their keys)
     customer_id: int
     email: str
     plan: Plan
+    channel: str = "direct"  # "direct" or "rapidapi"
+    tier: str | None = None  # RapidAPI subscription tier (BASIC, PRO, ULTRA, MEGA, CUSTOM)
 
 
 def hash_key(raw: str) -> str:
@@ -53,7 +63,30 @@ def _key_from_headers(request: Request) -> str | None:
     return request.headers.get("x-api-key", "").strip() or None
 
 
+def _rapidapi_caller(request: Request) -> Caller | None:
+    sent = request.headers.get("x-rapidapi-proxy-secret")
+    if not settings.rapidapi_proxy_secret or sent is None:
+        return None  # integration off, or not a RapidAPI call
+    if not hmac.compare_digest(sent.encode(), settings.rapidapi_proxy_secret.encode()):
+        raise APIError(403, "invalid_proxy_secret", "Request did not come through the RapidAPI gateway.")
+    user = request.headers.get("x-rapidapi-user", "").strip()
+    if not re.fullmatch(r"[A-Za-z0-9_.@-]{1,100}", user):
+        raise APIError(400, "missing_rapidapi_user", "RapidAPI user header is missing or invalid.")
+    tier = re.sub(r"[^A-Za-z0-9_-]", "", request.headers.get("x-rapidapi-subscription", ""))[:20] or None
+    with connection() as conn:
+        row = conn.execute(
+            """INSERT INTO customers (email, plan, notes) VALUES (%s, 'rapidapi', 'RapidAPI marketplace')
+               ON CONFLICT (email) DO UPDATE SET email = EXCLUDED.email
+               RETURNING id, email, plan""", (f"rapidapi:{user}",)).fetchone()
+    caller = Caller(None, row["id"], row["email"], get_plan(row["plan"]), "rapidapi", tier)
+    request.state.caller = caller
+    return caller
+
+
 def authenticate(request: Request) -> Caller:
+    rapid = _rapidapi_caller(request)
+    if rapid is not None:
+        return rapid
     raw = _key_from_headers(request)
     if not raw:
         raise APIError(401, "missing_api_key", "Send your API key as 'Authorization: Bearer <key>'.",

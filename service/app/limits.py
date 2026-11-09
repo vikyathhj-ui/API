@@ -30,7 +30,8 @@ def redis_client() -> redis.Redis:
 def check_rate_limit(caller: Caller) -> dict:
     limit = caller.plan.requests_per_minute
     window = int(time.time() // 60)
-    key = f"rl:{caller.key_id}:{window}"
+    who = f"k{caller.key_id}" if caller.key_id is not None else f"c{caller.customer_id}"
+    key = f"rl:{who}:{window}"
     try:
         pipe = _redis.pipeline()
         pipe.incr(key)

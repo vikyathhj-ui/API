@@ -40,6 +40,11 @@ _Last updated: 2026-11-09_
 - Tests: 36/36; e2e 10/10 (veraPDF PDF/A-3b + Mustang zero warnings); 500/500 load-test requests OK; 15/15 clean fresh starts
 - Bugs found and fixed during testing: start-up race when two workers created tables; Redis failing under dropped privileges; docs page depending on a blocked CDN; font-cache warnings in read-only containers; e2e script permission issue; benchmark distorted by a memory tracer (earlier)
 
+## RapidAPI (2026-11-09)
+- Server integration done and tested (proxy-secret check, per-user usage, 4 new tests, HTTP check)
+- OpenAPI 3.0.3 file for import + listing text + pricing: [rapidapi/LISTING.md](rapidapi/LISTING.md)
+- Waiting on founder: deploy publicly, create the RapidAPI project, paste the proxy secret, connect PayPal
+
 ## Product gaps (prioritise by what prospects ask for)
 1. XRechnung (CII/UBL) and Peppol BIS UBL output
 2. Reverse charge, VAT exemptions and zero rate; document-level discounts/charges
@@ -50,7 +55,7 @@ _Last updated: 2026-11-09_
 ## Founder actions (in order)
 - [ ] Pick a final name and domain (check trademark)
 - [ ] Rent a server and deploy ([DEPLOY.md](DEPLOY.md)), then run `scripts/e2e-check.sh` against it
-- [ ] Open a Merchant-of-Record account; add checkout links ([SELLING.md](SELLING.md))
+- [ ] List on RapidAPI ([rapidapi/LISTING.md](rapidapi/LISTING.md)) and/or open a Merchant-of-Record account for direct sales ([SELLING.md](SELLING.md))
 - [ ] Speak to a Chartered Accountant (export of services, GST/LUT)
 - [ ] Get the Terms/Privacy drafts reviewed
 - [ ] Outreach: 30 messages → 15 conversations → 3 founding customers ([validation kit](validation/validation-kit.md))

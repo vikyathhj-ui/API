@@ -212,7 +212,8 @@ def signup(request: Request, payload: dict = Body(..., examples=[{"email": "dev@
     if not settings.signup_enabled:
         raise APIError(403, "signup_disabled", "Self-service sign-up is currently closed. Please contact us.")
     email = str(payload.get("email", "")).strip().lower()
-    if not re.fullmatch(r"[^@\s]{1,64}@[^@\s]{1,190}\.[A-Za-z]{2,24}", email):
+    # No ":" allowed: "rapidapi:<user>" is reserved for RapidAPI marketplace customers.
+    if not re.fullmatch(r"[^@\s:]{1,64}@[^@\s:]{1,190}\.[A-Za-z]{2,24}", email):
         raise APIError(400, "invalid_email", "Please enter a valid email address.")
     name = str(payload.get("name", "")).strip()[:120] or None
     check_signup_limit(request.client.host if request.client else "unknown")
@@ -256,7 +257,7 @@ def health():
 # --------------------------------------------------------------------------- #
 def _page(name: str) -> HTMLResponse:
     html = _templates.get_template(name).render(
-        product=settings.product_name, plans=list(PLANS.values()), contact=settings.contact_email,
+        product=settings.product_name, plans=[p for p in PLANS.values() if p.public], contact=settings.contact_email,
         payment_links=settings.payment_links, signup_enabled=settings.signup_enabled,
         base_url=settings.public_base_url, ruleset=RULESET, limitations=LIMITATIONS,
         example=json.dumps(SAMPLE, indent=2, ensure_ascii=False), year=datetime.now(timezone.utc).year)

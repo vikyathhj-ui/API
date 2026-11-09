@@ -18,6 +18,8 @@ alias dc='docker compose -f docker-compose.yml -f deploy/docker-compose.prod.yml
 | Leaked key → revoke | `dc exec api python -m app.admin revoke-key --prefix ifk_live_AbCd` (prefix from `list`) |
 | Usage this month | `dc exec api python -m app.admin usage` |
 
+RapidAPI marketplace customers are created automatically on their first call, as `rapidapi:<their RapidAPI username>` on the internal `rapidapi` plan. RapidAPI bills them and enforces their quota; `usage` shows their activity.
+
 Plans and prices live in `service/app/plans.py` (rebuild and restart after changing).
 API keys are shown only once. Send them to customers through a private channel, never in a public ticket.
 
